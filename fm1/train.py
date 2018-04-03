@@ -62,7 +62,7 @@ niter = 0
 
 while niter < TOTAL_ITER:
     niter += 1
-    batch_data = freader.get_batch(128)
+    batch_data = freader.get_batch(256)
     if not batch_data:
         break
     train_x, train_y = inp_fn(batch_data)
