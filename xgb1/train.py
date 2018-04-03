@@ -11,15 +11,15 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s [%(levelname)s]: %(message)s")
 
 model_file = 'model/gbt_model.pkl'
-trainf = 'feature/train_feature.libfm'
-validf = 'feature/valid_feature.libfm'
+trainf = 'feature/trnvld_feature.libfm'
+#validf = 'feature/valid_feature.libfm'
 testf = 'feature/test_feature.libfm'
 
 
 def train():
     logging.info('loading training data')
     data_train_dmat = xgb.DMatrix(trainf)
-    data_valid_dmat = xgb.DMatrix(validf)
+    data_valid_dmat = xgb.DMatrix(testf)
 
     logging.info('start training')
     bst_params = {

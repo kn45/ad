@@ -32,8 +32,8 @@ def train():
         'min_data_in_leaf': 10,
         'metric': 'binary_logloss',
         'min_sum_hessian_in_leaf': 1.,
-        'lambda_l1': 1.0,
-        'lambda_l2': 1.0,
+        'lambda_l1': 0.1,
+        'lambda_l2': 0.1,
         'feature_fraction': 0.7,
         #'max_bin': 127,
         'bagging_fraction': 0.7
