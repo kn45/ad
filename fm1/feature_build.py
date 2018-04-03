@@ -67,7 +67,6 @@ def category2feature():
                 continue
             if feat_cfg[idx][1][0] == 1:
                 feats.extend(cat_idx.lookup([feat_cfg[idx][0]+'_'+fld]))
-                print feat_cfg[idx][0]+'_'+fld, cat_idx.lookup([feat_cfg[idx][0]+'_'+fld])
         feats = sorted(feats)
         print ' '.join([flds[-1]] + [str(x) + ':1' for x in feats])
 
