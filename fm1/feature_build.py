@@ -45,7 +45,7 @@ def build_value_bin():
                 data = [float(x.rstrip('\n').split('\t')[idx]) for x in f.readlines()]
                 data = [x for x in data if x != -1]
             mbin.add_bin(data, feat[0], 100)
-    mbin.save_bin('val_feat_bin')
+    mbin.save_bin(sys.argv[2])
 
 
 def build_category_dict():
@@ -58,7 +58,7 @@ def build_category_dict():
 
 
 def category2feature():
-    cat_idx = DictTable('cat_feat_dict')
+    cat_idx = DictTable(sys.argv[2])
     for ln in sys.stdin:
         flds = ln.rstrip('\n').split('\t')
         feats = []
@@ -75,7 +75,7 @@ def category2feature():
 def value2bin():
     # transfer value to bin, preserve -1
     bsp = BinSpliter()
-    bsp.load_bin('val_feat_bin')
+    bsp.load_bin(sys.argv[2])
     for ln in sys.stdin:
         flds = ln.rstrip('\n').split('\t')
         for idx, fld in enumerate(flds):
@@ -96,5 +96,3 @@ if __name__ == '__main__':
         build_category_dict()
     if sys.argv[1] == 'category2feature':
         category2feature()
-
-
