@@ -3,6 +3,7 @@
 import sys
 sys.path.append('../utils')
 from dataproc import BinSpliter, DictTable
+from datetime import datetime
 
 
 feat_cfg = [
@@ -12,23 +13,23 @@ feat_cfg = [
     ['item_property_list', [0]],
     ['item_brand_id', [1, 'cat']],  # 2056, dense
     ['item_city_id', [1, 'cat']],  # 129, dense
-    ['item_price_level', [1, 'value']],  # 14, int
-    ['item_sales_level', [1, 'value', -1]],  # 18, int, missing
-    ['item_collected_level', [1, 'value']],  # 18, int
-    ['item_pv_level', [1, 'value']], # 22, int
+    ['item_price_level', [1, 'cat']],  # 14, int
+    ['item_sales_level', [1, 'cat', -1]],  # 18, int, missing
+    ['item_collected_level', [1, 'cat']],  # 18, int
+    ['item_pv_level', [1, 'cat']], # 22, int
     ['user_id', [1, 'cat']],  # 20w, sparse
     ['user_gender_id', [1, 'cat', -1]],  # 3, dense, missing
-    ['user_age_level', [1, 'value', -1]],  # 8, int, missing
+    ['user_age_level', [1, 'cat', -1]],  # 8, int, missing
     ['user_occupation_id', [1, 'cat', -1]],  # 4, dense, missing
-    ['user_star_level', [1, 'value', -1]], # 11, int, missing
+    ['user_star_level', [1, 'cat', -1]], # 11, int, missing
     ['context_id', [0, 'cat']],  # 47w, uniq
-    ['context_timestamp', [0, 'value']],  # 28w, int, in 7-days, take out half-hour?
-    ['context_page_id', [1, 'value']],  # 20, int
+    ['context_timestamp', [1, 'cat']],  # 28w, int, in 7-days, take out half-hour?
+    ['context_page_id', [1, 'cat']],  # 20, int
     ['predict_category_property', [0]],
     ['shop_id', [1, 'cat']],  # 3960, dense
-    ['shop_review_num_level', [1, 'value']],  # 26, int
+    ['shop_review_num_level', [1, 'cat']],  # 26, int
     ['shop_review_positive_rate', [1, 'value', -1]],  # float, missing
-    ['shop_star_level', [1, 'value']], # 22, int
+    ['shop_star_level', [1, 'cat']], # 22, int
     ['shop_score_service', [1, 'value', -1]],  # float, missing
     ['shop_score_delivery', [1, 'value', -1]],  # float, missing
     ['shop_score_description', [1, 'value', -1]],  # float, missing
@@ -36,8 +37,19 @@ feat_cfg = [
     ]
 
 
+def basic_transform():
+    def ts2hour(ts):
+        ts = int(ts)
+        return datetime.fromtimestamp(ts).strftime('%H') if ts > 0 else str(ts)
+
+    for ln in sys.stdin:
+        flds = ln.rstrip('\n').split('\t')
+        flds[16] = ts2hour(flds[16])
+        print '\t'.join(flds)
+
+
 def build_value_bin():
-    data_file = '../data_all/data_all.tsv'
+    data_file = sys.argv[3]
     mbin = BinSpliter()
     for idx, feat in enumerate(feat_cfg):
         if feat[1][0] == 1 and feat[1][1] == 'value':
@@ -95,3 +107,6 @@ if __name__ == '__main__':
         build_category_dict()
     if sys.argv[1] == 'category2feature':
         category2feature()
+    if sys.argv[1] == 'basic_transform':
+        basic_transform()
+
