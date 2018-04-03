@@ -7,11 +7,12 @@ from datetime import datetime
 from operator import itemgetter
 
 
+# 1 4 5 19
 feat_cfg = [
     ['instance_id', [0, 'cat']],  # 47w, uniq
     ['item_id', [1, 'cat']], # 1w, medium
-    ['item_category_list', [1, 'list']],
-    ['item_property_list', [1, 'list']],
+    ['item_category_list', [0, 'list']],
+    ['item_property_list', [0, 'list']],
     ['item_brand_id', [1, 'cat']],  # 2056, dense
     ['item_city_id', [1, 'cat']],  # 129, dense
     ['item_price_level', [1, 'value']],  # 14, int
@@ -48,33 +49,6 @@ def basic_transform():
         flds[16] = ts2hour(flds[16])
         print '\t'.join(flds)
 
-
-def build_value_bin():
-    data_file = sys.argv[3]
-    mbin = BinSpliter()
-    for idx, feat in enumerate(feat_cfg):
-        if feat[1][0] == 1 and feat[1][1] == 'value':
-            with open(data_file) as f:
-                data = [float(x.rstrip('\n').split('\t')[idx]) for x in f.readlines()]
-                data = [x for x in data if x != -1]
-            mbin.add_bin(data, feat[0], 128)
-    mbin.save_bin(sys.argv[2])
-
-
-def build_category_dict():
-    for ln in sys.stdin:
-        flds = ln.rstrip('\n').split('\t')
-        for idx, feat in enumerate(feat_cfg):
-            if feat[1][0] == 1 and flds[idx] != '-1':
-                if feat[1][1] == 'list':
-                    for f in flds[idx].split(';'):
-                        print feat[0] + '_' + f
-                elif feat[1][1] == 'value':
-                    print feat[0] + '_'
-                else:
-                    print feat[0] + '_' + flds[idx]
-
-
 def category2feature():
     cat_idx = DictTable(sys.argv[2])
     for ln in sys.stdin:
@@ -84,29 +58,14 @@ def category2feature():
             if fld == '-1' or feat_cfg[idx][1][0] != 1:
                 continue
             if feat_cfg[idx][1][1] == 'list':
-                fs = [feat_cfg[idx][0] + '_' + x for x in fld.split(';')]
-                feats.extend([(x, 1) for x in cat_idx.lookup(fs)])
-            elif feat_cfg[idx][1][1] == 'value':
-                feats.extend([(x, fld) for x in cat_idx.lookup([feat_cfg[idx][0]+'_'])])
-            else:
-                feats.extend([(x, 1) for x in cat_idx.lookup([feat_cfg[idx][0]+'_'+fld])])
+                continue
+            val = fld
+            if idx in [1, 4, 5, 19]:
+                val = str(cat_idx.lookup([feat_cfg[idx][0]+'_'+fld])[0])
+            feats.append((idx, val))
+            
         feats = sorted(feats, key=itemgetter(0))
         print ' '.join([flds[-1]] + [':'.join(map(str, x)) for x in feats])
-
-
-def value2bin():
-    # transfer value to bin, preserve -1
-    bsp = BinSpliter()
-    bsp.load_bin(sys.argv[2])
-    for ln in sys.stdin:
-        flds = ln.rstrip('\n').split('\t')
-        for idx, fld in enumerate(flds):
-            if fld == '-1':
-                continue
-            if feat_cfg[idx][1][0] == 1 and feat_cfg[idx][1][1] == 'value':
-                num_bin = bsp.find_bin(feat_cfg[idx][0], float(fld))
-                flds[idx] = str(num_bin)
-        print '\t'.join(flds)
 
 
 if __name__ == '__main__':
