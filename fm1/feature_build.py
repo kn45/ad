@@ -9,8 +9,8 @@ from datetime import datetime
 feat_cfg = [
     ['instance_id', [0, 'cat']],  # 47w, uniq
     ['item_id', [1, 'cat']], # 1w, medium
-    ['item_category_list', [0]],
-    ['item_property_list', [0]],
+    ['item_category_list', [1, 'list']],
+    ['item_property_list', [1, 'list']],
     ['item_brand_id', [1, 'cat']],  # 2056, dense
     ['item_city_id', [1, 'cat']],  # 129, dense
     ['item_price_level', [1, 'cat']],  # 14, int
@@ -56,7 +56,7 @@ def build_value_bin():
             with open(data_file) as f:
                 data = [float(x.rstrip('\n').split('\t')[idx]) for x in f.readlines()]
                 data = [x for x in data if x != -1]
-            mbin.add_bin(data, feat[0], 100)
+            mbin.add_bin(data, feat[0], 128)
     mbin.save_bin(sys.argv[2])
 
 
@@ -64,8 +64,11 @@ def build_category_dict():
     for ln in sys.stdin:
         flds = ln.rstrip('\n').split('\t')
         for idx, feat in enumerate(feat_cfg):
-            if feat[1][0] == 1:
-                if flds[idx] != '-1':
+            if feat[1][0] == 1 and flds[idx] != '-1':
+                if feat[1][1] == 'list':
+                    for f in flds[idx].split(';'):
+                        print feat[0] + '_' + f
+                else:
                     print feat[0] + '_' + flds[idx]
 
 
@@ -75,9 +78,12 @@ def category2feature():
         flds = ln.rstrip('\n').split('\t')
         feats = []
         for idx, fld in enumerate(flds):
-            if fld == '-1':
+            if fld == '-1' or feat_cfg[idx][1][0] != 1:
                 continue
-            if feat_cfg[idx][1][0] == 1:
+            if feat_cfg[idx][1][1] == 'list':
+                fs = [feat_cfg[idx][0] + '_' + x for x in fld.split(';')]
+                feats.extend(cat_idx.lookup(fs))
+            else:
                 feats.extend(cat_idx.lookup([feat_cfg[idx][0]+'_'+fld]))
         feats = sorted(feats)
         print ' '.join([flds[-1]] + [str(x) + ':1' for x in feats])
