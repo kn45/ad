@@ -39,8 +39,19 @@ rand_samp()
   tail -n $valid_cnt $data_trnvld > $data_valid
   echo -e "(trnvld)"$trnvld_cnt"  =  (train)"$train_cnt"  + (valid)"$valid_cnt"\tValid Ratio: "$valid_ratio
 }
-rand_samp
+#rand_samp
 
+date_samp()
+{
+  cat $data_src | awk '
+    {
+      if (strftime("%d", $17) == 24)
+        print $0 > "'"$data_test"'"
+      else
+        print $0 > "'"$data_trnvld"'"
+    }'
+}
+date_samp
 
 # For classification task, stratified sampling
 strf_samp()
