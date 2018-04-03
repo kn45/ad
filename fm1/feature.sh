@@ -9,5 +9,7 @@ cat ./feature/data_all_in_cat.tsv | python feature_build.py build_category_dict 
 
 # tranform
 cat ../data_train/data_trnvld.tsv | python feature_build.py value2bin ./feature/value_bin > ./feature/trnvld_category.tsv
-cat ./feature/trnvld_category.tsv | python feature_build.py category2feature ./feature/category_dict > ./feature/feature_trnvld.libfm
+cat ./feature/trnvld_category.tsv | python feature_build.py category2feature ./feature/category_dict > ./feature/trnvld_feature.libfm
 
+cat ../data_test/data_test.tsv | python feature_build.py value2bin ./feature/value_bin > ./feature/test_category.tsv
+cat ./feature/test_category.tsv | python feature_build.py category2feature ./feature/category_dict > ./feature/test_feature.libfm
