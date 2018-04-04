@@ -2,6 +2,7 @@
 
 set -x
 
+echo "start `date`"
 # build dict
 cat ../data_all/data_all.tsv | python feature_build.py basic_transform > ./feature/data_all_transform.tsv
 cat ./feature/data_all_transform.tsv | python feature_build.py build_category_dict | sort | uniq | awk '{print $1"\t"NR}' > ./feature/category_dict
@@ -24,3 +25,4 @@ python feature_build.py basic_transform | \
 python feature_build.py category2feature ./feature/category_dict > ./feature/all_feature.libfm &
 
 wait
+echo "done `date`"
