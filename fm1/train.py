@@ -9,7 +9,7 @@ import dataproc
 from fm import FMClassifier
 
 INP_DIM = len(open('feature/category_dict').readlines()) + 1
-HID_DIM = 1
+HID_DIM = 16
 REG_W = 0.0  # 1st
 REG_V = 1.0  # 2nd
 
@@ -69,7 +69,7 @@ while niter < TOTAL_ITER:
     mdl.train_step(sess, train_x, train_y)
     train_eval = mdl.eval_step(sess, train_x, train_y)
     test_eval = mdl.eval_step(sess, test_x, test_y) \
-        if niter % 20 == 0 else 'SKIP'
+        if niter % 50 == 0 else 'SKIP'
     print niter, 'train:', train_eval, 'test:', test_eval
 save_path = mdl.saver.save(sess, MDL_CKPT_DIR, global_step=mdl.global_step)
 print "model saved:", save_path
