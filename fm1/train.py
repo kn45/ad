@@ -8,12 +8,12 @@ sys.path.append('../utils')
 import dataproc
 from fm import FMClassifier
 
-INP_DIM = 214444
-HID_DIM = 256
+INP_DIM = len(open('feature/category_dict').readlines()) + 1
+HID_DIM = 1
 REG_W = 0.0  # 1st
-REG_V = 0.0  # 2nd
+REG_V = 1.0  # 2nd
 
-LR = 1e-4
+LR = 1e-3
 TOTAL_ITER = 10000
 MAX_EPOCH = 20
 
