@@ -62,10 +62,10 @@ def pred():
     mdl_bst = cPickle.load(open(model_file, 'rb'))
     print 'best iteration:', mdl_bst.best_iteration
     mdl_bst.set_param('nthread', 1)
-    pred_res = mdl_bst.predict(
+    preds = mdl_bst.predict(
         data_pred_dmat,
         ntree_limit=mdl_bst.best_iteration)
-    for p in pred_res:
+    for p in preds:
         print >> resf, p
     resf.close()
 
