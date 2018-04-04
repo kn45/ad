@@ -45,6 +45,8 @@ def basic_transform():
     for ln in sys.stdin:
         flds = ln.rstrip('\n').split('\t')
         flds[16] = ts2hour(flds[16])
+        if len(flds) < 27:  # data without label (to be predicted)
+            flds.append('0')
         print '\t'.join(flds)
 
 

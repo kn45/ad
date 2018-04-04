@@ -18,3 +18,8 @@ cat ../data_test/data_test.tsv | \
 python feature_build.py basic_transform | \
 python feature_build.py value2bin ./feature/value_bin | \
 python feature_build.py category2feature ./feature/category_dict > ./feature/test_feature.libfm
+
+cat ../data_all/data_all.tsv | \
+python feature_build.py basic_transform | \
+python feature_build.py value2bin ./feature/value_bin | \
+python feature_build.py category2feature ./feature/category_dict > ./feature/test_feature.libfm

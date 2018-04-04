@@ -14,12 +14,17 @@ model_file = 'model/gbt_model.pkl'
 train_feat = 'feature/trnvld_feature.libfm'
 test_feat = 'feature/test_feature.libfm'
 pred_feat = 'feature/pred_feature.libfm'
+all_feat='feature/all_feature.libfm'
 pred_res = 'predict/predict_res'
 
 
-def train():
+def train(mode):
     logging.info('loading training data')
-    data_train_dmat = xgb.DMatrix(train_feat)
+    if mode == 'a':
+        tf = train_feat
+    if mode == 'b':
+        tf = all_feat
+    data_train_dmat = xgb.DMatrix(tf)
     data_valid_dmat = xgb.DMatrix(test_feat)
 
     logging.info('start training')
@@ -39,11 +44,15 @@ def train():
     train_params = {
         'params': bst_params,
         'dtrain': data_train_dmat,
-        'num_boost_round': 1000,  # max round
         'evals': [(data_train_dmat, 'train'), (data_valid_dmat, 'valid_0')],
         'maximize': False,
-        'early_stopping_rounds': 100,
         'verbose_eval': True}
+    if mode == 'a':
+        train_params['num_boost_round'] = 1000
+        train_params['early_stopping_rounds'] = 100
+    if mode == 'b':
+        train_params['num_boost_round'] = cPickle.load(open(model_file, 'rb')).best_iteration
+
     mdl_bst = xgb.train(**train_params)
 
     logging.info('Saving model')
@@ -71,5 +80,6 @@ def pred():
 
 
 if __name__ == '__main__':
-    train()
+    train('a')
+    train('b')
     pred()
