@@ -11,15 +11,16 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s [%(levelname)s]: %(message)s")
 
 model_file = 'model/gbt_model.pkl'
-trainf = 'feature/trnvld_feature.libfm'
-#validf = 'feature/valid_feature.libfm'
-testf = 'feature/test_feature.libfm'
+train_feat = 'feature/trnvld_feature.libfm'
+test_feat = 'feature/test_feature.libfm'
+pred_feat = 'feature/pred_feature.libfm'
+pred_res = 'predict/predict_res'
 
 
 def train():
     logging.info('loading training data')
-    data_train_dmat = xgb.DMatrix(trainf)
-    data_valid_dmat = xgb.DMatrix(testf)
+    data_train_dmat = xgb.DMatrix(train_feat)
+    data_valid_dmat = xgb.DMatrix(test_feat)
 
     logging.info('start training')
     bst_params = {
@@ -29,10 +30,10 @@ def train():
         'gamma': 1.0,
         'eval_metric': ['logloss'],
         'max_depth': 7,
-        'subsample': 0.7,
-        'colsample_bytree': 0.7,
+        'subsample': 0.8,
+        'colsample_bytree': 0.8,
         'objective': 'binary:logistic',
-        'min_child_weight': 10,
+        'min_child_weight': 1,
         'alpha': 1.0,
         'lambda': 1.0}
     train_params = {
@@ -53,25 +54,22 @@ def train():
     print sorted(feat_imp, key=itemgetter(1), reverse=True)[0:10]
 
 
-def test():
-    resf = open('test_res', 'w')
-    data_test_dmat = xgb.DMatrix(testf)
+def pred():
+    resf = open(pred_res, 'w')
+    data_pred_dmat = xgb.DMatrix(pred_feat)
 
     # init gbt
     mdl_bst = cPickle.load(open(model_file, 'rb'))
+    print 'best iteration:', mdl_bst.best_iteration
     mdl_bst.set_param('nthread', 1)
-    mdl_bst.set_param('eval_metric', 'logloss')
-
-    test_metric = mdl_bst.eval_set([(data_test_dmat, 'test_0')])
-    print test_metric.split(':')[-1], float(test_metric.split(':')[-1]) ** 2 / 2.
     pred_res = mdl_bst.predict(
-        data_test_dmat,
+        data_pred_dmat,
         ntree_limit=mdl_bst.best_iteration)
-    for i in pred_res:
-        print >> resf, i
+    for p in pred_res:
+        print >> resf, p
     resf.close()
 
 
 if __name__ == '__main__':
     train()
-    #test()
+    pred()

@@ -9,14 +9,18 @@ cat ./feature/data_all_transform.tsv | python feature_build.py build_category_di
 # tranform
 cat ../data_train/data_trnvld.tsv | \
 python feature_build.py basic_transform | \
-python feature_build.py category2feature ./feature/category_dict > ./feature/trnvld_feature.libfm
-
-<<!
-cat ../data_train/data_valid.tsv | \
-python feature_build.py basic_transform | \
-python feature_build.py category2feature ./feature/category_dict > ./feature/valid_feature.libfm
-!
+python feature_build.py category2feature ./feature/category_dict > ./feature/trnvld_feature.libfm &
 
 cat ../data_test/data_test.tsv | \
 python feature_build.py basic_transform | \
-python feature_build.py category2feature ./feature/category_dict > ./feature/test_feature.libfm
+python feature_build.py category2feature ./feature/category_dict > ./feature/test_feature.libfm &
+
+cat ../data_pred/data_pred.tsv | \
+python feature_build.py basic_transform | \
+python feature_build.py category2feature ./feature/category_dict > ./feature/pred_feature.libfm &
+
+cat ../data_all/data_all.tsv | \
+python feature_build.py basic_transform | \
+python feature_build.py category2feature ./feature/category_dict > ./feature/all_feature.libfm &
+
+wait

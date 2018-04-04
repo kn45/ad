@@ -46,19 +46,9 @@ def basic_transform():
     for ln in sys.stdin:
         flds = ln.rstrip('\n').split('\t')
         flds[16] = ts2hour(flds[16])
+        if len(flds) < 27:  # data without label (to be predicted)
+            flds.append('0')
         print '\t'.join(flds)
-
-
-def build_value_bin():
-    data_file = sys.argv[3]
-    mbin = BinSpliter()
-    for idx, feat in enumerate(feat_cfg):
-        if feat[1][0] == 1 and feat[1][1] == 'value':
-            with open(data_file) as f:
-                data = [float(x.rstrip('\n').split('\t')[idx]) for x in f.readlines()]
-                data = [x for x in data if x != -1]
-            mbin.add_bin(data, feat[0], 128)
-    mbin.save_bin(sys.argv[2])
 
 
 def build_category_dict():
@@ -88,32 +78,13 @@ def category2feature():
                 feats.extend([(x, 1) for x in cat_idx.lookup(fs)])
             elif feat_cfg[idx][1][1] == 'value':
                 feats.extend([(x, fld) for x in cat_idx.lookup([feat_cfg[idx][0]+'_'])])
-            else:
+            else:  # category
                 feats.extend([(x, 1) for x in cat_idx.lookup([feat_cfg[idx][0]+'_'+fld])])
         feats = sorted(feats, key=itemgetter(0))
         print ' '.join([flds[-1]] + [':'.join(map(str, x)) for x in feats])
 
 
-def value2bin():
-    # transfer value to bin, preserve -1
-    bsp = BinSpliter()
-    bsp.load_bin(sys.argv[2])
-    for ln in sys.stdin:
-        flds = ln.rstrip('\n').split('\t')
-        for idx, fld in enumerate(flds):
-            if fld == '-1':
-                continue
-            if feat_cfg[idx][1][0] == 1 and feat_cfg[idx][1][1] == 'value':
-                num_bin = bsp.find_bin(feat_cfg[idx][0], float(fld))
-                flds[idx] = str(num_bin)
-        print '\t'.join(flds)
-
-
 if __name__ == '__main__':
-    if sys.argv[1] == 'build_value_bin':
-        build_value_bin()
-    if sys.argv[1] == 'value2bin':
-        value2bin()
     if sys.argv[1] == 'build_category_dict':
         build_category_dict()
     if sys.argv[1] == 'category2feature':
