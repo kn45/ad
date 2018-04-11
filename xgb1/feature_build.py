@@ -26,7 +26,7 @@ feat_cfg = [
     ['context_id', [0, 'cat']],  # 47w, uniq
     ['context_timestamp', [1, 'cat']],  # 28w, int, in 7-days, take out half-hour?
     ['context_page_id', [1, 'value']],  # 20, int
-    ['predict_category_property', [0]],
+    ['predict_category_property', [1, 'comp']],
     ['shop_id', [1, 'cat']],  # 3960, dense
     ['shop_review_num_level', [1, 'value']],  # 26, int
     ['shop_review_positive_rate', [1, 'value', -1]],  # float, missing
@@ -61,8 +61,17 @@ def build_category_dict():
                         print feat[0] + '_' + f
                 elif feat[1][1] == 'value':
                     print feat[0] + '_'
-                else:
+                elif feat[1][1] == 'cat':
                     print feat[0] + '_' + flds[idx]
+                elif feat[1][1] == 'comp':
+                    c = [x.split(':') for x in flds[idx].split(';')]
+                    d = [(x[0], x[1].split(',')) for x in c]
+                    for f in d:
+                        # f[0] is category, f[1] is properties
+                        if f[1][0] == '-1':
+                            continue
+                        for prop in f[1]:
+                            print feat[0] + '_' + f[0] + '-' + prop
 
 
 def category2feature():
@@ -78,8 +87,17 @@ def category2feature():
                 feats.extend([(x, 1) for x in cat_idx.lookup(fs)])
             elif feat_cfg[idx][1][1] == 'value':
                 feats.extend([(x, fld) for x in cat_idx.lookup([feat_cfg[idx][0]+'_'])])
-            else:  # category
+            elif feat_cfg[idx][1][1] == 'cat':  # category
                 feats.extend([(x, 1) for x in cat_idx.lookup([feat_cfg[idx][0]+'_'+fld])])
+            elif feat_cfg[idx][1][1] == 'comp':  # predict cat property
+                c = [x.split(':') for x in fld.split(';')]
+                c = [(x[0], x[1].split(',')) for x in c]
+                c = [x for x in c if x[1][0] != '-1']
+                fs = []
+                for f in c:
+                    for prop in f[1]:
+                        fs.append(feat_cfg[idx][0] + '_' + f[0] + '-' + prop)
+                feats.extend([(x, 1) for x in cat_idx.lookup(fs)])
         feats = sorted(feats, key=itemgetter(0))
         print ' '.join([flds[-1]] + [':'.join(map(str, x)) for x in feats])
 
@@ -91,4 +109,3 @@ if __name__ == '__main__':
         category2feature()
     if sys.argv[1] == 'basic_transform':
         basic_transform()
-
