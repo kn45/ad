@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pred_src=../data_all/round1_ijcai_18_test_a_20180301.txt
+pred_src=../data_all/round1_ijcai_18_test_b_20180418.txt
 pred_example=../data_all/round1_ijcai_18_result_demo_20180301.txt
 
 head -1 $pred_example > predict/submit.txt

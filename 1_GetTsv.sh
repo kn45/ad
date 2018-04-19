@@ -3,7 +3,7 @@
 data_all_raw=data_all/round1_ijcai_18_train_20180301.txt
 data_all=data_all/data_all.tsv
 
-data_pred_raw=data_all/round1_ijcai_18_test_a_20180301.txt
+data_pred_raw=data_all/round1_ijcai_18_test_b_20180418.txt
 data_pred=data_pred/data_pred.tsv
 
 
